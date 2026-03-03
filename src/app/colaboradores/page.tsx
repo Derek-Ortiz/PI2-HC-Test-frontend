@@ -53,9 +53,12 @@ export default function ColaboradoresPage() {
       AnimalsService.getAll(refugioId),
       refugioId ? RolesService.getByRefugio(refugioId).catch(() => []) : Promise.resolve([]),
     ]).then(([todosUsuarios, refugioData, animalesData, rolesData]: [Usuario[], Refugio | null, Animal[], Rol[]]) => {
-      const admin = todosUsuarios.find((u) => u.id_usuario === usuarioId) ?? null;
-      const soloColaboradores = todosUsuarios.filter((u) => u.id_usuario !== usuarioId);
-      setAdminData(admin);
+
+
+      const propietario = todosUsuarios.find((u) => u.rol?.nombre.toLowerCase() === 'propietario') ?? null;
+      const soloColaboradores = todosUsuarios.filter((u) => u.rol?.nombre.toLowerCase() !== 'propietario');
+      
+      setAdminData(propietario);
       setColaboradores(soloColaboradores);
       if (refugioData) setRefugio(refugioData);
       const enUso = animalesData.filter((a) => a.refugio_id === refugioId).length;
