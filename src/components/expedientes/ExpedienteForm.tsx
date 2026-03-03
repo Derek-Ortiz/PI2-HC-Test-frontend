@@ -108,6 +108,7 @@ export const ExpedienteForm: React.FC<ExpedienteFormProps> = ({
               onHistorialClick={onOpenHistorial}
               onStateChange={handleEstadoChange}
               currentState={initialData?.estado}
+              disabled={readOnly}
             />
           </div>
         </div>

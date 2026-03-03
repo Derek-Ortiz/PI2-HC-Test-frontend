@@ -36,12 +36,14 @@ interface ExpedienteActionButtonsProps {
   onHistorialClick?: () => void;
   onStateChange?: (apiValue: string) => void;  
   currentState?: string;                       
+  disabled?: boolean;
 }
 
 export const ExpedienteActionButtons: React.FC<ExpedienteActionButtonsProps> = ({
   onHistorialClick,
   onStateChange,
   currentState,
+  disabled = false,
 }) => {
   const [state, setState] = useState<RecupercacionState>(
     apiToState[currentState ?? ''] ?? 'recuperacion'
@@ -75,15 +77,15 @@ export const ExpedienteActionButtons: React.FC<ExpedienteActionButtonsProps> = (
       <div className="relative">
         <Button
           type="button"
-          onClick={() => setIsOpen(!isOpen)}
-          className="flex items-center space-x-2 pl-3">
+          onClick={disabled ? undefined : () => setIsOpen(!isOpen)}
+          className={`flex items-center space-x-2 pl-3${disabled ? ' opacity-50 cursor-not-allowed' : ''}`}>
           <span>
             <Image src="/imagenes/estado.svg" alt="Estado" width={30} height={30} />
           </span>
           <span>{stateLabels[state]}</span>
         </Button>
 
-        {isOpen && (
+        {isOpen && !disabled && (
           <div className="absolute top-full left-0 mt-2 w-48 bg-white border border-gray-300 rounded-lg shadow-lg z-10">
             {stateOrder.map((s) => (
               <button
