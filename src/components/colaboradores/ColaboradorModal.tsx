@@ -87,7 +87,7 @@ const ColaboradorModal: React.FC<ColaboradorModalProps> = ({ colaborador, roles 
               >
                 <option value="" disabled>Seleccionar rol</option>
                 {roles.map((rol) => (
-                  <option key={rol.id_roles} value={rol.id_roles}>{rol.nombre}</option>
+                  <option key={rol.id_roles} value={rol.id_roles}>{rol.nombre.toLowerCase()}</option>
                 ))}
               </select>
             </div>
