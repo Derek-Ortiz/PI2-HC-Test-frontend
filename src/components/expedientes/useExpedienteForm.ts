@@ -3,6 +3,7 @@
 import { useRef, useState } from 'react';
 import { Animal } from '@/schemas/animal.schema';
 import type { Movimiento } from '@/schemas/movimiento.schema';
+import { getMotivosPermitidos } from './MovimientoValidationError';
 
 interface UseExpedienteFormOptions {
   onCancelConfirmed?: () => void;
@@ -71,13 +72,20 @@ export const useExpedienteForm = (options?: UseExpedienteFormOptions) => {
     { value: 'salida', label: 'Salida' },
   ];
 
-  const motivoOptions = [
-    { value: '', label: 'Seleccione...' },
+  const todosMotivos = [
     { value: 'rescate', label: 'Rescate' },
+    { value: 'retorno', label: 'Retorno' },
     { value: 'adopcion', label: 'Adopción' },
     { value: 'defuncion', label: 'Defunción' },
-    { value: 'retorno', label: 'Retorno' },
-    {value: 'extravio', label: 'Extravío'}
+    { value: 'extravio', label: 'Extravío' },
+  ];
+
+  const motivosPermitidos = getMotivosPermitidos(movimientoData.tipo_movimiento);
+  const motivoOptions = [
+    { value: '', label: 'Seleccione...' },
+    ...(motivosPermitidos.length > 0
+      ? todosMotivos.filter((m) => motivosPermitidos.includes(m.value))
+      : todosMotivos),
   ];
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -104,7 +112,17 @@ export const useExpedienteForm = (options?: UseExpedienteFormOptions) => {
     } else {
       if (name === 'tipo_movimiento' || name === 'fecha_movimiento' || name === 'motivo_movimiento') {
         const fieldName = name === 'motivo_movimiento' ? 'motivo' : name;
-        setMovimientoData(prev => ({ ...prev, [fieldName]: value }));
+        // Al cambiar el tipo de movimiento, resetear el motivo si no es válido para el nuevo tipo
+        if (name === 'tipo_movimiento') {
+          const permitidos = getMotivosPermitidos(value);
+          setMovimientoData(prev => ({
+            ...prev,
+            tipo_movimiento: value,
+            motivo: permitidos.includes(prev.motivo) ? prev.motivo : '',
+          }));
+        } else {
+          setMovimientoData(prev => ({ ...prev, [fieldName]: value }));
+        }
       } else {
         setFormData(prev => ({ ...prev, [name]: value }));
       }
