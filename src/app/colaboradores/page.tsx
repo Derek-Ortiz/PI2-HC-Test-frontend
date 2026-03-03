@@ -57,7 +57,7 @@ export default function ColaboradoresPage() {
 
       const propietario = todosUsuarios.find((u) => u.rol?.nombre.toLowerCase() === 'propietario') ?? null;
       const soloColaboradores = todosUsuarios.filter((u) => u.rol?.nombre.toLowerCase() !== 'propietario');
-      
+
       setAdminData(propietario);
       setColaboradores(soloColaboradores);
       if (refugioData) setRefugio(refugioData);
@@ -99,7 +99,13 @@ const handleSaveColaborador = async (data: Omit<Usuario, 'id_usuario'> & { confi
       refugio_id: getRefugioId(),
       activo: true,
     } as Omit<Usuario, 'id_usuario'>);
-    setColaboradores([...colaboradores, nuevo]);
+
+    const rolEncontrado = roles.find((r) => r.id_roles === nuevo.rol_id);
+    const nuevoConRol: Usuario = {
+      ...nuevo,
+      rol: nuevo.rol ?? (rolEncontrado ? { id_roles: rolEncontrado.id_roles, nombre: rolEncontrado.nombre } : undefined),
+    };
+    setColaboradores([...colaboradores, nuevoConRol]);
   }
 };
 
