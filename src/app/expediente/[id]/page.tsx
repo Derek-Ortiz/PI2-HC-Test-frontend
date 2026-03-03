@@ -22,8 +22,11 @@ export default function EditarExpedientePage() {
   const [expediente, setExpediente] = useState<Animal | null>(null);
   const [movimientos, setMovimientos] = useState<Movimiento[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isColaborador, setIsColaborador] = useState(false);
 
-  const isColaborador = getUserRole() === ROLES.COLABORADOR;
+  useEffect(() => {
+    setIsColaborador(getUserRole() === ROLES.COLABORADOR);
+  }, []);
 
   useEffect(() => {
     if (!animalId) return;

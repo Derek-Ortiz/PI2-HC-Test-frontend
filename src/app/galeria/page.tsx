@@ -28,10 +28,10 @@ export default function GaleriaPage() {
 	const [busqueda, setBusqueda] = useState('');
 	const [deleteId, setDeleteId] = useState<string | null>(null);
 	const [showDeleteModal, setShowDeleteModal] = useState(false);
-
-	const isColaborador = getUserRole() === ROLES.COLABORADOR;
+	const [isColaborador, setIsColaborador] = useState(false);
 
 	useEffect(() => {
+		setIsColaborador(getUserRole() === ROLES.COLABORADOR);
 		AnimalsService.getAll(refugioId).then(setAnimales);
 		MovementsService.getAll().then(setMovimientos);
 	}, []);

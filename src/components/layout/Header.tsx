@@ -1,13 +1,16 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { getUserRole, ROLES } from '@/app/lib/auth';
 
 export const Header: React.FC = () => {
-  const role = getUserRole();
-  const isColaborador = role === ROLES.COLABORADOR;
+  const [isColaborador, setIsColaborador] = useState(false);
+
+  useEffect(() => {
+    setIsColaborador(getUserRole() === ROLES.COLABORADOR);
+  }, []);
 
   return (
     <header className="bg-[#2B264F] text-white px-6 py-4">

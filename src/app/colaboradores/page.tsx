@@ -29,13 +29,15 @@ export default function ColaboradoresPage() {
   const [loading, setLoading] = useState(true);
   const [refugio, setRefugio] = useState<Refugio | null>(null);
   const [espaciosEnUso, setEspaciosEnUso] = useState<number>(0);
+  const [rol, setRol] = useState<string>('');
 
-  const rol = getUserRole();
   const isPropietario = rol === ROLES.PROPIETARIO;
   const isAdminOrPropietario = rol === ROLES.ADMIN || isPropietario;
 
   useEffect(() => {
-    if (rol === ROLES.COLABORADOR) {
+    const rolActual = getUserRole();
+    setRol(rolActual);
+    if (rolActual === ROLES.COLABORADOR) {
       router.replace('/galeria');
     }
   }, []);

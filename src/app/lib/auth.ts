@@ -31,13 +31,13 @@ export function getUsuarioId(): string {
 }
 
 export function getUserRole(): string {
-  return getTokenPayload()?.rol ?? '';
+  return (getTokenPayload()?.rol ?? '').toLowerCase();
 }
 
 export const ROLES = {
-  PROPIETARIO: 'Propietario',
-  ADMIN: 'Admin',
-  COLABORADOR: 'Colaborador',
+  PROPIETARIO: 'propietario',
+  ADMIN: 'admin',
+  COLABORADOR: 'colaborador',
 } as const;
 
 export type AppRole = typeof ROLES[keyof typeof ROLES];
