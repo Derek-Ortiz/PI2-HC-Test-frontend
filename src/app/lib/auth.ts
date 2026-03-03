@@ -29,3 +29,15 @@ export function getRefugioId(): string {
 export function getUsuarioId(): string {
   return getTokenPayload()?.sub ?? '';
 }
+
+export function getUserRole(): string {
+  return getTokenPayload()?.rol ?? '';
+}
+
+export const ROLES = {
+  PROPIETARIO: 'Propietario',
+  ADMIN: 'Admin',
+  COLABORADOR: 'Colaborador',
+} as const;
+
+export type AppRole = typeof ROLES[keyof typeof ROLES];

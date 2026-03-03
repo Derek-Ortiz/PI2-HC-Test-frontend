@@ -1,19 +1,25 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { ExpedienteForm, HistorialMovimientosModal } from '@/components/expedientes';
 import type { Movimiento } from '@/schemas/movimiento.schema';
 import type { Animal } from '@/schemas/animal.schema';
 import { AnimalsService } from '@/app/services/animals.service';
 import { MovementsService } from '@/app/services/movements.service';
-import { getRefugioId, getUsuarioId } from '@/app/lib/auth';
+import { getRefugioId, getUsuarioId, getUserRole, ROLES } from '@/app/lib/auth';
 import Image from 'next/image';
 
 export default function ExpedientePage() {
   const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [movimientos, setMovimientos] = useState<Movimiento[]>([]);
+
+  useEffect(() => {
+    if (getUserRole() === ROLES.COLABORADOR) {
+      router.replace('/galeria');
+    }
+  }, []);
 
   const handleSaveAnimal = async (
     data: Animal,
@@ -94,6 +100,7 @@ export default function ExpedientePage() {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         movimientos={movimientos}
+        onMovimientosChange={setMovimientos}
       />
     </div>
   );

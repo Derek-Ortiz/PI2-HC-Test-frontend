@@ -24,7 +24,7 @@ export const AuthService = {
     `${ENDPOINTS.ROLES}/refugio/${refugioCreado.id_refugio}`
   );
 
-  const rolPropietario = roles.find((r) => r.nombre === 'propietario');
+  const rolPropietario = roles.find((r) => r.nombre.toLowerCase() === 'propietario');
 
   if (!rolPropietario) throw new Error('No se encontró el rol propietario');
 

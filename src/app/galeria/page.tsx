@@ -11,7 +11,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import type { Animal } from '@/schemas/animal.schema';
 import type { Movimiento } from '@/schemas/movimiento.schema';
-import { getRefugioId} from '@/app/lib/auth';
+import { getRefugioId, getUserRole, ROLES } from '@/app/lib/auth';
 
 const getTipoHuella = (movimientos: Movimiento[]): 'entrada' | 'salida' | null => {
 	if (!movimientos.length) return null;
@@ -28,6 +28,8 @@ export default function GaleriaPage() {
 	const [busqueda, setBusqueda] = useState('');
 	const [deleteId, setDeleteId] = useState<string | null>(null);
 	const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+	const isColaborador = getUserRole() === ROLES.COLABORADOR;
 
 	useEffect(() => {
 		AnimalsService.getAll(refugioId).then(setAnimales);
@@ -57,11 +59,13 @@ export default function GaleriaPage() {
 							<span className="ml-3 text-[#22345A] font-medium text-lg">Galeria de expedientes</span>
 						</Link>
 						<div className="flex-1" />
+						{!isColaborador && (
 						<Link href="/expediente/nuevo">
 							<button className="flex items-center justify-center hover:scale-105 transition-transform">
 								<Image src="/imagenes/galeria/addAnimal.svg" alt="nuevo" width={32} height={32} />
 							</button>
 						</Link>
+						)}
 					</div>
 				</div>
 				<div className="w-96 relative ml-8">
@@ -85,6 +89,7 @@ export default function GaleriaPage() {
 							raza={animal.raza}
 							imagen={animal.imagen}
 							tipoHuella={tipoHuella}
+							canDelete={!isColaborador}
 							onClick={() => {
 								window.location.href = `/expediente/${animal.id_animal}`;
 							}}

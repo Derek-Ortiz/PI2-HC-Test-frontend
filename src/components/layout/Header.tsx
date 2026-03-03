@@ -3,8 +3,12 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { getUserRole, ROLES } from '@/app/lib/auth';
 
 export const Header: React.FC = () => {
+  const role = getUserRole();
+  const isColaborador = role === ROLES.COLABORADOR;
+
   return (
     <header className="bg-[#2B264F] text-white px-6 py-4">
       <div className="max-w-full mx-auto flex items-center justify-between">
@@ -13,15 +17,15 @@ export const Header: React.FC = () => {
           <Link href="/galeria" className="hover:opacity-80 transition-opacity">
             <Image src="/imagenes/Hogar.svg" alt="Inicio" width={24} height={24} />
           </Link>
-          
-          {/* Por el momento no tendra rutas definidas, despues les agrego un link*/}
           <button className="hover:opacity-80 transition-opacity">
             <Image src="/imagenes/Estadisticas.svg" alt="Estadísticas" width={24} height={24} />
           </button>
           
-          <Link href="/colaboradores" className="hover:opacity-80 transition-opacity">
-            <Image src="/imagenes/Configuracion.svg" alt="Configuración" width={24} height={24} />
-          </Link>
+          {!isColaborador && (
+            <Link href="/colaboradores" className="hover:opacity-80 transition-opacity">
+              <Image src="/imagenes/Configuracion.svg" alt="Configuración" width={24} height={24} />
+            </Link>
+          )}
           
         </div>
 
@@ -30,3 +34,4 @@ export const Header: React.FC = () => {
     </header>
   );
 };
+
