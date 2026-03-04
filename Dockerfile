@@ -1,13 +1,20 @@
-FROM node:22.19.0
+FROM node:20-alpine AS builder
 
 WORKDIR /app
-
 COPY package*.json ./
-
-RUN npm install
-
+RUN npm ci
 COPY . .
+RUN npm run build   # <- este paso genera la carpeta .next
+
+FROM node:20-alpine AS runner
+WORKDIR /app
+
+ENV NODE_ENV=production
+
+# Estos archivos solo existen si el build fue exitoso
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
 
 EXPOSE 3000
-
-CMD ["npm", "run", "dev"]
+CMD ["node", "server.js"]
