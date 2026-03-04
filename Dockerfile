@@ -17,4 +17,6 @@ COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 
 EXPOSE 3000
+# El servidor Next.js en standalone se ejecuta con node server.js
+# Este archivo está en la raíz de /app después de COPY --from=builder /app/.next/standalone ./
 CMD ["node", "server.js"]
