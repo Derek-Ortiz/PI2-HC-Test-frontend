@@ -2,7 +2,7 @@ services:
   frontend: 
     image: derekortiz/hc-frontend
     ports:
-      - "3000:3000"
+      - "3001:3001"
     env_file: .env
     environment:
       NEXT_URL: ${NEXT_PUBLIC_API_URL}
