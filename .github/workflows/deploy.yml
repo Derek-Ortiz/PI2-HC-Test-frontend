@@ -41,21 +41,25 @@ jobs:
       # Deploy en EC2
       - name: Deploy con Docker Compose
         uses: appleboy/ssh-action@v1
+        env:
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
         with:
           host: ${{ secrets.EC2_FRONTEND_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
+          envs: DOCKERHUB_TOKEN,DOCKERHUB_USERNAME,NEXT_PUBLIC_API_URL
           script: |
             # Login a Docker Hub desde la EC2
-            echo ${{ secrets.DOCKERHUB_TOKEN }} | \
-              docker login --username ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+            echo $DOCKERHUB_TOKEN | docker login --username $DOCKERHUB_USERNAME --password-stdin
 
             cd /home/ubuntu/app
             
             # Crear .env.production desde variables
-            cat > .env.production << EOF
-NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}
-EOF
+            cat > .env.production << 'ENVFILE'
+            NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+            ENVFILE
             
             # Verificar que el archivo se creó
             echo "=== .env.production creado ==="
