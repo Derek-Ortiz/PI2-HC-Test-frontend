@@ -35,7 +35,7 @@ jobs:
           host: ${{ secrets.EC2_FRONTEND_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: "docker-compose.prod.yml,nginx.conf,.env.production"
+          source: "docker-compose.prod.yml,nginx.conf"
           target: "/home/ubuntu/app"
 
       # Deploy en EC2
@@ -51,6 +51,15 @@ jobs:
               docker login --username ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
 
             cd /home/ubuntu/app
+            
+            # Crear .env.production desde variables
+            cat > .env.production << EOF
+NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}
+EOF
+            
+            # Verificar que el archivo se creó
+            echo "=== .env.production creado ==="
+            cat .env.production
             
             # 1. Detener los contenedores actuales
             docker-compose -f docker-compose.prod.yml down || true
