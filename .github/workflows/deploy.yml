@@ -51,5 +51,12 @@ jobs:
               docker login --username ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
 
             cd /home/ubuntu/app
+            
+            # Descargar la imagen nueva
             docker-compose pull
+            
+            # Levantar el contenedor con la nueva imagen
             docker-compose up -d
+            
+            # Limpieza automática: borrar imágenes viejas, contenedores detenidos y redes sin usar
+            docker system prune -af
