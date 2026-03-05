@@ -20,22 +20,24 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      # Build y Push a Docker Hub
+      # Build y Push a Docker Hub con NEXT_PUBLIC_API_URL
       - name: Build y Push imagen
         uses: docker/build-push-action@v5
         with:
           context: .
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/hc-frontend:latest
+          build-args: |
+            NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}
 
-      # Copiar archivos de configuración a la EC2
-      - name: Copiar archivos de configuración
+      # Copiar docker-compose.prod.yml a la EC2
+      - name: Copiar docker-compose.prod.yml
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.EC2_FRONTEND_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: "docker-compose.prod.yml,nginx.conf"
+          source: "docker-compose.prod.yml"
           target: "/home/ubuntu/app"
 
       # Deploy en EC2
@@ -59,28 +61,46 @@ jobs:
             # Crear .env.production desde variables
             cat > .env.production << 'ENVFILE'
             NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+            NODE_ENV=production
             ENVFILE
             
             # Verificar que el archivo se creó
             echo "=== .env.production creado ==="
             cat .env.production
             
+            echo "=== LIMPIANDO RECURSOS ANTIGUOS ==="
+            
             # 1. Detener los contenedores actuales
             docker-compose -f docker-compose.prod.yml down || true
             
-            # 2. Limpiar recursos viejos
+            # 2. LIMPIEZA AGRESIVA - Borrar datos antiguos
+            echo "Borrando contenedores, volúmenes e imágenes sin usar..."
             docker system prune -af --volumes
             
-            # 3. Descargar la nueva imagen
+            # 3. Limpiar caché de Docker completamente
+            docker builder prune -af
+            
+            # 4. Limpiar cualquier volumen huérfano
+            docker volume prune -f
+            
+            echo "=== INICIANDO APLICACIÓN NUEVA ==="
+            
+            # 5. Descargar la nueva imagen fresca
             docker-compose -f docker-compose.prod.yml pull
             
-            # 4. Iniciar la aplicación
+            # 6. Iniciar la aplicación
             docker-compose -f docker-compose.prod.yml up -d
             
-            # 5. Verificar que los contenedores estén corriendo
+            # 7. Verificar que los contenedores estén corriendo
             sleep 5
             docker-compose -f docker-compose.prod.yml ps
             
-            # 6. Mostrar logs (primeros 50 lineas)
+            # 8. Mostrar logs
             echo "=== Frontend Logs ===" 
             docker-compose -f docker-compose.prod.yml logs --tail=50 frontend
+            
+            echo "=== Nginx Logs ===" 
+            docker-compose -f docker-compose.prod.yml logs --tail=50 nginx
+            
+            echo "=== DEPLOYMENT COMPLETADO ==="
+            echo "Acceder en: http://${{ secrets.EC2_FRONTEND_HOST }}"

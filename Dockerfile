@@ -1,10 +1,15 @@
 FROM node:20-alpine AS builder
 
 WORKDIR /app
+
+# ARG para construir con la URL del backend correcta
+ARG NEXT_PUBLIC_API_URL=http://localhost:3001
+ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+
 COPY package*.json ./
 RUN npm install
 COPY . .
-RUN npm run build   # <- este paso genera la carpeta .next
+RUN npm run build   # <- este paso genera la carpeta .next con la URL embebida
 
 FROM node:20-alpine AS runner
 WORKDIR /app
