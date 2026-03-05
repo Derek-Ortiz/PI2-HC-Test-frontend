@@ -94,6 +94,7 @@ export default function ExpedientePage() {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         movimientos={movimientos}
+        onMovimientosChange={setMovimientos}
       />
     </div>
   );
