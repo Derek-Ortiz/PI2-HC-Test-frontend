@@ -5,6 +5,7 @@ import type { Usuario } from '@/schemas/auth.schema';
 interface ColaboradoresTableProps {
   colaboradores: Usuario[];
   isAdmin: boolean;
+  canAgregar?: boolean;
   onEditar: (col: Usuario) => void;
   onEliminar: (col: Usuario) => void;
   onAgregar: () => void;
@@ -13,6 +14,7 @@ interface ColaboradoresTableProps {
 const ColaboradoresTable: React.FC<ColaboradoresTableProps> = ({
   colaboradores,
   isAdmin,
+  canAgregar = false,
   onEditar,
   onEliminar,
   onAgregar,
@@ -28,9 +30,9 @@ const ColaboradoresTable: React.FC<ColaboradoresTableProps> = ({
         {isAdmin && (
           <TableActionButtons
             buttons={[
-              { label: 'Agregar', onClick: onAgregar },
+              ...(canAgregar ? [{ label: 'Agregar', onClick: onAgregar }] : []),
               { label: 'Editar', onClick: () => selectedCol && onEditar(selectedCol), disabled: !selectedCol },
-              { label: 'Eliminar', onClick: () => selectedCol && onEliminar(selectedCol), disabled: !selectedCol, variant: 'danger' },
+              { label: 'Eliminar', onClick: () => selectedCol && onEliminar(selectedCol), disabled: !selectedCol, variant: 'danger' as const },
             ]}
           />
         )}

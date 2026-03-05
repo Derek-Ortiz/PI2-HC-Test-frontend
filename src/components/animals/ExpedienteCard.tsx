@@ -9,6 +9,7 @@ interface Props {
   tipoHuella: 'entrada' | 'salida' | null;
   onClick?: () => void;
   onDelete?: () => void;
+  canDelete?: boolean;
 }
 
 const pawIcons = {
@@ -20,7 +21,7 @@ const fondoEliminar = '/imagenes/galeria/fondoEliminar.svg';
 const iconoDelete = '/imagenes/galeria/Delete.png';
 const DEFAULT_IMAGE = '/imagenes/galeria/default.png'; 
 
-export const ExpedienteCard: React.FC<Props> = ({ nombre, raza, imagen, tipoHuella, onClick, onDelete }) => {
+export const ExpedienteCard: React.FC<Props> = ({ nombre, raza, imagen, tipoHuella, onClick, onDelete, canDelete = true }) => {
   console.log('imagen prop:', imagen);
   console.log('getImageUrl result:', getImageUrl(imagen));
   return (
@@ -42,6 +43,7 @@ export const ExpedienteCard: React.FC<Props> = ({ nombre, raza, imagen, tipoHuel
       <span className=" flex items-center text-gray-700 text-md mb-4 self-start">{raza}</span>
 
       <div className="absolute bottom-4 right-4">
+        {canDelete && (
         <button
           type="button"
           className="relative flex items-center justify-center w-10 h-10 bg-transparent border-none p-0"
@@ -53,6 +55,7 @@ export const ExpedienteCard: React.FC<Props> = ({ nombre, raza, imagen, tipoHuel
           <Image src={fondoEliminar} alt="fondo eliminar" width={30} height={30} className="absolute top-1.2 left- -1 z-0" />
           <Image src={iconoDelete} alt="eliminar" width={18} height={18} className="z-10" />
         </button>
+        )}
       </div>
     </div>
   );

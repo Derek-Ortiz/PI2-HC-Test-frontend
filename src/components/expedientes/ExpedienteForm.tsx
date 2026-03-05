@@ -4,6 +4,7 @@ import React from 'react';
 import { Button, ConfirmModal, Input, Select, Checkbox, Textarea } from '@/components/ui';
 import { ExpedienteActionButtons } from './ExpedienteActionButtons';
 import { useExpedienteForm } from './useExpedienteForm';
+import { MovimientoValidationError } from './MovimientoValidationError';
 import type { Animal } from '@/schemas/animal.schema';
 import type { Movimiento } from '@/schemas/movimiento.schema';
 import Image from 'next/image';
@@ -108,6 +109,7 @@ export const ExpedienteForm: React.FC<ExpedienteFormProps> = ({
               onHistorialClick={onOpenHistorial}
               onStateChange={handleEstadoChange}
               currentState={initialData?.estado}
+              disabled={readOnly}
             />
           </div>
         </div>
@@ -190,6 +192,10 @@ export const ExpedienteForm: React.FC<ExpedienteFormProps> = ({
                 options={motivoOptions}
                 disabled={readOnly}
                 className={errors.motivo ? 'border-red-500' : ''}
+              />
+              <MovimientoValidationError
+                tipo_movimiento={movimientoData.tipo_movimiento}
+                motivo={movimientoData.motivo}
               />
             </div>
 

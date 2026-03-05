@@ -1,10 +1,11 @@
 "use client";
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { ColaboradoresService } from '../services/colaboradores.service';
 import { RefugiosService, type Refugio } from '../services/refugios.service';
 import { AnimalsService } from '../services/animals.service';
 import { RolesService } from '../services/roles.service';
-import { getRefugioId, getUsuarioId, getTokenPayload } from '../lib/auth';
+import { getRefugioId, getUsuarioId, getUserRole, ROLES } from '../lib/auth';
 import ColaboradorModal from '../../components/colaboradores/ColaboradorModal';
 import DomicilioModal from '../../components/colaboradores/DomicilioModal';
 import ConfirmModal from '../../components/colaboradores/ConfirmModal';
@@ -16,6 +17,7 @@ import type { Rol } from '../services/roles.service';
 import type { Animal } from '@/schemas/animal.schema';
 
 export default function ColaboradoresPage() {
+  const router = useRouter();
   const [showColaboradorModal, setShowColaboradorModal] = useState(false);
   const [showDomicilioModal, setShowDomicilioModal] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
@@ -27,8 +29,18 @@ export default function ColaboradoresPage() {
   const [loading, setLoading] = useState(true);
   const [refugio, setRefugio] = useState<Refugio | null>(null);
   const [espaciosEnUso, setEspaciosEnUso] = useState<number>(0);
+  const [rol, setRol] = useState<string>('');
 
-  const isAdmin = getTokenPayload()?.rol === 'propietario';
+  const isPropietario = rol === ROLES.PROPIETARIO;
+  const isAdminOrPropietario = rol === ROLES.ADMIN || isPropietario;
+
+  useEffect(() => {
+    const rolActual = getUserRole();
+    setRol(rolActual);
+    if (rolActual === ROLES.COLABORADOR) {
+      router.replace('/galeria');
+    }
+  }, []);
 
 
   useEffect(() => {
@@ -41,9 +53,12 @@ export default function ColaboradoresPage() {
       AnimalsService.getAll(refugioId),
       refugioId ? RolesService.getByRefugio(refugioId).catch(() => []) : Promise.resolve([]),
     ]).then(([todosUsuarios, refugioData, animalesData, rolesData]: [Usuario[], Refugio | null, Animal[], Rol[]]) => {
-      const admin = todosUsuarios.find((u) => u.id_usuario === usuarioId) ?? null;
-      const soloColaboradores = todosUsuarios.filter((u) => u.id_usuario !== usuarioId);
-      setAdminData(admin);
+
+
+      const propietario = todosUsuarios.find((u) => u.rol?.nombre.toLowerCase() === 'propietario') ?? null;
+      const soloColaboradores = todosUsuarios.filter((u) => u.rol?.nombre.toLowerCase() !== 'propietario');
+
+      setAdminData(propietario);
       setColaboradores(soloColaboradores);
       if (refugioData) setRefugio(refugioData);
       const enUso = animalesData.filter((a) => a.refugio_id === refugioId).length;
@@ -84,7 +99,13 @@ const handleSaveColaborador = async (data: Omit<Usuario, 'id_usuario'> & { confi
       refugio_id: getRefugioId(),
       activo: true,
     } as Omit<Usuario, 'id_usuario'>);
-    setColaboradores([...colaboradores, nuevo]);
+
+    const rolEncontrado = roles.find((r) => r.id_roles === nuevo.rol_id);
+    const nuevoConRol: Usuario = {
+      ...nuevo,
+      rol: nuevo.rol ?? (rolEncontrado ? { id_roles: rolEncontrado.id_roles, nombre: rolEncontrado.nombre } : undefined),
+    };
+    setColaboradores([...colaboradores, nuevoConRol]);
   }
 };
 
@@ -114,20 +135,21 @@ const handleSaveColaborador = async (data: Omit<Usuario, 'id_usuario'> & { confi
           email: adminData.email,
           contrasena: '********',
         } : undefined}
-        isAdmin={isAdmin}
+        isAdmin={isPropietario}
         onEditar={() => { setSelectedColaborador(adminData); setEsPropietario(true); setShowColaboradorModal(true); }}
         onEliminar={() => { setSelectedColaborador(adminData); setShowConfirmModal(true); }}
       />
 
       <DomicilioTable
         refugio={refugio}
-        isAdmin={isAdmin}
+        isAdmin={isPropietario}
         onEditar={() => setShowDomicilioModal(true)}
       />
 
       <ColaboradoresTable
         colaboradores={colaboradores}
-        isAdmin={isAdmin}
+        isAdmin={isAdminOrPropietario}
+        canAgregar={isPropietario}
         onEditar={(col) => { setSelectedColaborador(col); setEsPropietario(false); setShowColaboradorModal(true); }}
         onEliminar={(col) => { setSelectedColaborador(col); setShowConfirmModal(true); }}
         onAgregar={() => { setSelectedColaborador(null); setEsPropietario(false); setShowColaboradorModal(true); }}

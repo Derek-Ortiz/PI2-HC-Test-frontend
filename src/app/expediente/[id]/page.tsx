@@ -9,6 +9,7 @@ import Image from 'next/image';
 import { AnimalsService } from '@/app/services/animals.service';
 import { MovementsService } from '@/app/services/movements.service';
 import { getImageUrl } from '@/app/lib/endpoints';
+import { getUserRole, ROLES } from '@/app/lib/auth';
 
 
 export default function EditarExpedientePage() {
@@ -21,6 +22,11 @@ export default function EditarExpedientePage() {
   const [expediente, setExpediente] = useState<Animal | null>(null);
   const [movimientos, setMovimientos] = useState<Movimiento[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isColaborador, setIsColaborador] = useState(false);
+
+  useEffect(() => {
+    setIsColaborador(getUserRole() === ROLES.COLABORADOR);
+  }, []);
 
   useEffect(() => {
     if (!animalId) return;
@@ -96,9 +102,11 @@ export default function EditarExpedientePage() {
             </button>
             <span className="ml-2 text-[#182F51]">Editar expediente</span>
           </div>
+          {!isColaborador && (
           <button type="button" onClick={() => setIsEditing(true)} className="hover:opacity-80 transition-opacity">
             <Image src="/imagenes/edit.svg" alt="Editar" width={34} height={34} />
           </button>
+          )}
         </div>
       </div>
 
