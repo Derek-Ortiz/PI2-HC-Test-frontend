@@ -32,7 +32,7 @@ export interface RegisterDTO {
   activo: boolean;
   rol_id: string;
   refugio_id: string;
-  acepta_terminos: boolean;
+  acepta_terminos?: boolean;
 }
 
 export interface Usuario extends RegisterDTO {
