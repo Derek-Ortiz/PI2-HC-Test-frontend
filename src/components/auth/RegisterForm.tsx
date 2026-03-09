@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { Input } from '@/components/ui';
 import type { RegisterFormData } from '@/schemas/auth.schema';
+import { TermsModal } from './TermsModal';
 
 export const RegisterForm: React.FC<{ onSubmit?: (data: RegisterFormData) => void }> = ({ onSubmit }) => {
   const [formData, setFormData] = useState({
@@ -24,6 +25,8 @@ export const RegisterForm: React.FC<{ onSubmit?: (data: RegisterFormData) => voi
 
   const [touched, setTouched] = useState<{ [key: string]: boolean }>({});
   const [showErrors, setShowErrors] = useState(false);
+  const [showTermsModal, setShowTermsModal] = useState(false);
+  const [pendingData, setPendingData] = useState<RegisterFormData | null>(null);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -62,11 +65,28 @@ export const RegisterForm: React.FC<{ onSubmit?: (data: RegisterFormData) => voi
       email: formData.email,
       contrasena: formData.contrasena,
       confirmarContrasena: formData.confirmarContrasena,
+      acepta_terminos: false,
     };
-    onSubmit?.(dataToSubmit);
+    setPendingData(dataToSubmit);
+    setShowTermsModal(true);
+  };
+
+  const handleTermsConfirm = () => {
+    if (pendingData) {
+      onSubmit?.({ ...pendingData, acepta_terminos: true });
+    }
+    setShowTermsModal(false);
+  };
+
+  const handleTermsClose = () => {
+    setShowTermsModal(false);
   };
 
   return (
+    <>
+    {showTermsModal && (
+      <TermsModal onConfirm={handleTermsConfirm} onClose={handleTermsClose} />
+    )}
     <div className="min-h-screen w-full relative overflow-hidden">
       <div 
         className="absolute inset-0 bg-repeat"
@@ -247,5 +267,6 @@ export const RegisterForm: React.FC<{ onSubmit?: (data: RegisterFormData) => voi
         </div>
       </div>
     </div>
+    </>
   );
 };
