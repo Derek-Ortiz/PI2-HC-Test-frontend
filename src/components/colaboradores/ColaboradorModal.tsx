@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Input } from '@/components/ui';
+import { TermsModal } from '@/components/auth/TermsModal';
 import type { Rol } from '@/app/services/roles.service';
 import type { Usuario } from '@/schemas/auth.schema';
 
@@ -10,6 +11,8 @@ interface ColaboradorModalProps {
   onClose: () => void;
   onSave: (data: Omit<Usuario, 'id_usuario'> & { confirmarContrasena: string }) => void;
 }
+
+type PendingData = Omit<Usuario, 'id_usuario'> & { confirmarContrasena: string };
 
 const ColaboradorModal: React.FC<ColaboradorModalProps> = ({ colaborador, roles = [], esPropietario, onClose, onSave }) => {
   const [form, setForm] = useState({
@@ -22,6 +25,9 @@ const ColaboradorModal: React.FC<ColaboradorModalProps> = ({ colaborador, roles 
     rol_id: colaborador?.rol_id || '',
   });
 
+  const [showTermsModal, setShowTermsModal] = useState(false);
+  const [pendingData, setPendingData] = useState<PendingData | null>(null);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
@@ -31,7 +37,8 @@ const ColaboradorModal: React.FC<ColaboradorModalProps> = ({ colaborador, roles 
     if (form.contrasena || form.confirmarContrasena) {
       if (form.contrasena !== form.confirmarContrasena) return alert('Las contraseñas no coinciden');
     }
-    onSave({
+
+    const dataToSave: PendingData = {
       nombre: form.nombre,
       apellido_p: form.apellidoPaterno,
       apellido_m: form.apellidoMaterno,
@@ -41,15 +48,41 @@ const ColaboradorModal: React.FC<ColaboradorModalProps> = ({ colaborador, roles 
       rol_id: form.rol_id,
       activo: true,
       refugio_id: '',
-    });
+      acepta_terminos: false,
+    };
+
+    // Si es nuevo colaborador, mostrar modal de términos
+    if (!colaborador) {
+      setPendingData(dataToSave);
+      setShowTermsModal(true);
+    } else {
+      // Si es edición, usar el valor existente de acepta_terminos
+      onSave({ ...dataToSave, acepta_terminos: colaborador.acepta_terminos ?? true });
+      onClose();
+    }
+  };
+
+  const handleTermsConfirm = () => {
+    if (pendingData) {
+      onSave({ ...pendingData, acepta_terminos: true });
+    }
+    setShowTermsModal(false);
     onClose();
   };
 
+  const handleTermsClose = () => {
+    setShowTermsModal(false);
+  };
+
   return (
-    <div
-      className="fixed inset-0 flex items-center justify-center z-50"
-      onClick={onClose}
-      style={{ backgroundColor: 'rgba(0, 0, 0, 0.3)' }}>
+    <>
+      {showTermsModal && (
+        <TermsModal onConfirm={handleTermsConfirm} onClose={handleTermsClose} />
+      )}
+      <div
+        className="fixed inset-0 flex items-center justify-center z-50"
+        onClick={onClose}
+        style={{ backgroundColor: 'rgba(0, 0, 0, 0.3)' }}>
 
       <div
         className="bg-[#C8D1D7] rounded-lg shadow-2xl w-full max-w-md mx-4"
@@ -101,6 +134,7 @@ const ColaboradorModal: React.FC<ColaboradorModalProps> = ({ colaborador, roles 
         </div>
       </div>
     </div>
+    </>
   );
 };
 
