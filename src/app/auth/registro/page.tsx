@@ -34,6 +34,7 @@ export default function RegistroPage() {
           apellido_m: data.apellidoMaterno,
           email: data.email,
           contrasena: data.contrasena,
+          acepta_terminos: data.acepta_terminos,
         },
       };
 

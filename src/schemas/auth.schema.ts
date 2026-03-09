@@ -15,6 +15,7 @@ export interface RegisterFormData {
   email: string;
   contrasena: string;
   confirmarContrasena: string;
+  acepta_terminos: boolean;
 }
 
 export interface LoginFormData {
@@ -31,6 +32,7 @@ export interface RegisterDTO {
   activo: boolean;
   rol_id: string;
   refugio_id: string;
+  acepta_terminos: boolean;
 }
 
 export interface Usuario extends RegisterDTO {
@@ -71,5 +73,6 @@ export interface RegistroCompletoData {
     apellido_m: string;
     email: string;
     contrasena: string;
+    acepta_terminos: boolean;
   };
 }
